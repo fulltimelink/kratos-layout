@@ -62,7 +62,7 @@ func newApp(conf *conf.Server, r *consul.Registry, logger log.Logger, gs *grpc.S
 		panic("No Server Enabled! Please recheck server config!")
 	}
 	return kratos.New(
-		kratos.ID(id),
+		kratos.ID(id+"-"+conf.Name),
 		kratos.Name(conf.Name),
 		kratos.Version(conf.Version),
 		kratos.Metadata(map[string]string{}),
