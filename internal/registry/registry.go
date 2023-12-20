@@ -2,4 +2,4 @@ package registry
 
 import "github.com/google/wire"
 
-var ProviderSet = wire.NewSet(NewConsulRegistry)
+var RegistryProviderSet = wire.NewSet(NewConsulRegistry)
