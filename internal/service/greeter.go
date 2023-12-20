@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 
+	v1 "github.com/fulltimelink/kratos-layout/api/helloworld/v1"
 	"github.com/fulltimelink/kratos-layout/internal/biz"
-	v1 "github.com/go-kratos/kratos-layout/api/helloworld/v1"
 )
 
 // GreeterService is a greeter service.
