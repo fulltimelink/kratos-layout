@@ -7,21 +7,29 @@
 package main
 
 import (
-	"github.com/go-kratos/kratos-layout/internal/biz"
-	"github.com/go-kratos/kratos-layout/internal/conf"
-	"github.com/go-kratos/kratos-layout/internal/data"
-	"github.com/go-kratos/kratos-layout/internal/server"
-	"github.com/go-kratos/kratos-layout/internal/service"
-
+	"github.com/fulltimelink/kratos-layout/internal/biz"
+	"github.com/fulltimelink/kratos-layout/internal/conf"
+	"github.com/fulltimelink/kratos-layout/internal/data"
+	"github.com/fulltimelink/kratos-layout/internal/registry"
+	"github.com/fulltimelink/kratos-layout/internal/server"
+	"github.com/fulltimelink/kratos-layout/internal/service"
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/log"
+)
+
+import (
+	_ "go.uber.org/automaxprocs"
 )
 
 // Injectors from wire.go:
 
 // wireApp init kratos application.
-func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*kratos.App, func(), error) {
-	dataData, cleanup, err := data.NewData(confData, logger)
+func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger, confRegistry *conf.Registry) (*kratos.App, func(), error) {
+	consulRegistry := registry.NewConsulRegistry(confRegistry)
+	db := data.NewDB(confData, logger)
+	client := data.NewRedis(confData, logger)
+	rockscacheClient := data.NewRockscache(confData, logger, client)
+	dataData, cleanup, err := data.NewData(confData, logger, db, client, rockscacheClient)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -30,7 +38,8 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 	greeterService := service.NewGreeterService(greeterUsecase)
 	grpcServer := server.NewGRPCServer(confServer, greeterService, logger)
 	httpServer := server.NewHTTPServer(confServer, greeterService, logger)
-	app := newApp(logger, grpcServer, httpServer)
+	pProfServer := server.NewPProfServer(confServer)
+	app := newApp(confServer, consulRegistry, logger, grpcServer, httpServer, pProfServer)
 	return app, func() {
 		cleanup()
 	}, nil

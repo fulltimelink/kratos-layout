@@ -1,13 +1,15 @@
 syntax = "proto3";
 package kratos.api;
 
-option go_package = "github.com/go-kratos/kratos-layout/internal/conf;conf";
+option go_package = "learnkratos/app/huidu/internal/conf;conf";
 
 import "google/protobuf/duration.proto";
 
 message Bootstrap {
   Server server = 1;
   Data data = 2;
+  Registry registry = 3;
+  Trace trace = 4;
 }
 
 message Server {
@@ -15,20 +17,33 @@ message Server {
     string network = 1;
     string addr = 2;
     google.protobuf.Duration timeout = 3;
+    bool enabled = 4;
   }
   message GRPC {
     string network = 1;
     string addr = 2;
     google.protobuf.Duration timeout = 3;
+    bool enabled = 4;
+  }
+  message PPROF{
+    string addr = 1;
+    bool enabled = 2;
   }
   HTTP http = 1;
   GRPC grpc = 2;
+  PPROF pprof = 3;
+  string name = 4;
+  string version = 5;
+  string environment = 6;
 }
 
 message Data {
   message Database {
     string driver = 1;
     string source = 2;
+    int64 max_idle_conns = 3;
+    int64 max_open_conns = 4;
+    google.protobuf.Duration conn_max_life_time = 5;
   }
   message Redis {
     string network = 1;
@@ -38,4 +53,20 @@ message Data {
   }
   Database database = 1;
   Redis redis = 2;
+}
+message Consul {
+  string address = 1;
+  string schema = 2;
+  google.protobuf.Duration timeout = 3;
+}
+message Registry{
+  Consul consul = 1;
+}
+
+message Trace{
+  string  endpoint = 1;
+  string  trace_file_path = 2;
+  string  exporter = 3;
+  bool   enable = 4;
+  string token = 5;
 }

@@ -1,24 +1,31 @@
-FROM golang:1.18 AS builder
+FROM loads/alpine:3.8
 
-COPY . /src
-WORKDIR /src
+LABEL maintainer="main@fulltime.link"
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 
-RUN GOPROXY=https://goproxy.cn make build
+# set +8
+RUN apk --no-cache add curl tzdata \
+    && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
+    && echo "Asia/Shanghai" > /etc/timezone
 
-FROM debian:stable-slim
+# alpine testing package
+#RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing duf gops
+#RUN apk add --no-cache --repository https://mirrors.aliyun.com/alpine/edge/testing duf
+###############################################################################
+#                                INSTALLATION
+###############################################################################
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-		ca-certificates  \
-        netbase \
-        && rm -rf /var/lib/apt/lists/ \
-        && apt-get autoremove -y && apt-get autoclean -y
+ADD ./bin/server /app/server
+RUN chmod +x /app/server
+# 设置固定的项目路径
+ENV WORKDIR /app
 
-COPY --from=builder /src/bin /app
-
-WORKDIR /app
-
-EXPOSE 8000
-EXPOSE 9000
+###############################################################################
+#                                   START
+###############################################################################
+WORKDIR $WORKDIR
+EXPOSE 8080
+EXPOSE 9090
+EXPOSE 6060
 VOLUME /data/conf
-
 CMD ["./server", "-conf", "/data/conf"]
