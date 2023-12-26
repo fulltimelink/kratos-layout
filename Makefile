@@ -1,4 +1,6 @@
 include ../../app_makefile
+# docker仓库用户名
+DOCKER_USER := fulltimelink
 # 当前应用版本
 VERSION := 0.0.4
 # 服务端口 & grpcui
