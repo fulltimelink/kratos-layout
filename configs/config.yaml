@@ -1,15 +1,38 @@
 server:
   http:
-    addr: 0.0.0.0:8000
+    addr: 0.0.0.0:8080
     timeout: 1s
+    enabled: true
   grpc:
-    addr: 0.0.0.0:9000
+    addr: 0.0.0.0:9090
     timeout: 1s
+    enabled: true
+  pprof:
+    addr: 0.0.0.0:6060
+    enabled: true
+  name: demo-server
+  version: 0.0.1
+  environment: dev
 data:
   database:
     driver: mysql
     source: root:root@tcp(127.0.0.1:3306)/test
+    max_idle_conns: 10
+    max_open_conns: 200
+    conn_max_life_time: 28800s
   redis:
     addr: 127.0.0.1:6379
     read_timeout: 0.2s
     write_timeout: 0.2s
+registry:
+  consul:
+    address: 127.0.0.1:8500
+    schema: http
+    timeout: 3s
+    deregister_critical_service_after: 30
+trace:
+  enable: true
+  endpoint: http://127.0.0.1:14268/api/traces
+  trace_file_path: ./log/trace.log
+  exporter: jaeger
+  token:

@@ -13,5 +13,5 @@ func NewConsulRegistry(c *conf.Registry) *consul.Registry {
 	if err != nil {
 		panic(err)
 	}
-	return consul.New(client)
+	return consul.New(client, consul.WithDeregisterCriticalServiceAfter(int(c.Consul.DeregisterCriticalServiceAfter)))
 }

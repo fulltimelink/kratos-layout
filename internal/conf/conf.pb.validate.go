@@ -651,6 +651,8 @@ func (m *Consul) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for DeregisterCriticalServiceAfter
+
 	if len(errors) > 0 {
 		return ConsulMultiError(errors)
 	}
